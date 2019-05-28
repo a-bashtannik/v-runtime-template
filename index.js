@@ -51,15 +51,16 @@ export default {
       Object.keys(components).forEach(e => {if(typeof this.$options.components[e]==="undefined") passthrough.components[e] = components[e];} );
 
       const methodKeys = Object.keys(passthrough.methods || {});
-      const dataKeys = Object.keys(passthrough.$data || {});
+      // const dataKeys = Object.keys(passthrough.$data || {});
       const propKeys = Object.keys(passthrough.$props || {});
-      const allKeys = dataKeys.concat(propKeys).concat(methodKeys);
+      const allKeys = propKeys.concat(methodKeys);
       const methodsFromProps = buildFromProps(this.$parent, methodKeys);
       const props = merge([passthrough.$data, passthrough.$props, methodsFromProps]);
 
       const dynamic = {
         template: this.template || "<div></div>",
         props: allKeys,
+        data: function() { return passthrough.$data},
         computed: passthrough.computed,
         components: passthrough.components
       };
