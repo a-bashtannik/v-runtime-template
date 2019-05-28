@@ -69,15 +69,16 @@ var index = {
       Object.keys(components).forEach(function (e) {if(typeof this$1.$options.components[e]==="undefined") { passthrough.components[e] = components[e]; }} );
 
       var methodKeys = Object.keys(passthrough.methods || {});
-      var dataKeys = Object.keys(passthrough.$data || {});
+      // const dataKeys = Object.keys(passthrough.$data || {});
       var propKeys = Object.keys(passthrough.$props || {});
-      var allKeys = dataKeys.concat(propKeys).concat(methodKeys);
+      var allKeys = propKeys.concat(methodKeys);
       var methodsFromProps = buildFromProps(this.$parent, methodKeys);
       var props = merge([passthrough.$data, passthrough.$props, methodsFromProps]);
 
       var dynamic = {
         template: this.template || "<div></div>",
         props: allKeys,
+        data: function() { return passthrough.$data},
         computed: passthrough.computed,
         components: passthrough.components
       };
