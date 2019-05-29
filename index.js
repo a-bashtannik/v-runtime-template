@@ -29,9 +29,9 @@ export default {
   render(h) {
     if (this.template) {
       const { $data = {}, $props = {}, $options = {} } = this.$parent;
-      const { components = {}, computed = {}, methods = {} } = $options;
+      const { components = {}, computed = {}, methods = {}, filters = {}, watch = {} } = $options;
 
-      let passthrough = {$data:{}, $props:{}, $options:{}, components:{}, computed:{}, methods:{}};
+      let passthrough = {$data:{}, $props:{}, $options:{}, components:{}, computed:{}, methods:{}, filters:{}, watch: {}};
 
       if (typeof this.$options.methods === "undefined") {
         this.$options.methods = {};
@@ -42,25 +42,42 @@ export default {
       if (typeof this.$options.components === "undefined") {
         this.$options.components = {};
       }
+      if (typeof this.$options.filters === "undefined") {
+        this.$options.filters = {};
+      }
+      if (typeof this.$options.watch === "undefined") {
+        this.$options.watch = {};
+      }
 
       //build new objects by removing keys if already exists (e.g. created by mixins)
       Object.keys($data).forEach(e => {if(typeof this.$data[e]==="undefined") passthrough.$data[e] = $data[e];} );
       Object.keys($props).forEach(e => {if(typeof this.$props[e]==="undefined") passthrough.$props[e] = $props[e];} );
+
       Object.keys(methods).forEach(e => {if(typeof this.$options.methods[e]==="undefined") passthrough.methods[e] = methods[e];} );
+      Object.keys(filters).forEach(e => {if(typeof this.$options.filters[e]==="undefined") passthrough.filters[e] = methods[e];} );
+      Object.keys(watch).forEach(e => {if(typeof this.$options.watch[e]==="undefined") passthrough.watch[e] = methods[e];} );
+
       Object.keys(computed).forEach(e => {if(typeof this.$options.computed[e]==="undefined") passthrough.computed[e] = computed[e];} );
       Object.keys(components).forEach(e => {if(typeof this.$options.components[e]==="undefined") passthrough.components[e] = components[e];} );
 
-      const methodKeys = Object.keys(passthrough.methods || {});
+      const methodsKeys = Object.keys(passthrough.methods || {});
       // const dataKeys = Object.keys(passthrough.$data || {});
+      const filtersKeys = Object.keys(passthrough.filters || {});
+      const watchKeys = Object.keys(passthrough.watch || {});
       const propKeys = Object.keys(passthrough.$props || {});
-      const allKeys = propKeys.concat(methodKeys);
-      const methodsFromProps = buildFromProps(this.$parent, methodKeys);
-      const props = merge([passthrough.$data, passthrough.$props, methodsFromProps]);
+
+      const allKeys = propKeys; //.concat(methodKeys);
+
+      // const methodsFromProps = buildFromProps(this.$parent, methodKeys);
+      const props = merge([passthrough.$data, passthrough.$props]);
 
       const dynamic = {
         template: this.template || "<div></div>",
         props: allKeys,
         data: function() { return passthrough.$data},
+        filters: buildFromProps(filters, filtersKeys),
+        watch: buildFromProps(watch, watchKeys),
+        methods: buildFromProps(methods, methodsKeys),
         computed: passthrough.computed,
         components: passthrough.components
       };
